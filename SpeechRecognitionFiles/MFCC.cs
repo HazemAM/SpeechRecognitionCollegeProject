@@ -22,13 +22,19 @@ namespace SpeechRecognition
 
         public readonly double[][] MFCCS;
 
+        private double[] soundData;
+        private int sampleRate;
+
         public MFCC(WaveFile file)
         {
+            this.soundData = file.soundDataLeft;
+            this.sampleRate = file.sampleRate;
+            
             //Windowing:
-            windowLength = 0.020 * file.sampleRate;
+            windowLength = 0.020 * this.sampleRate;
             windowSize = (int)Math.Round(windowLength, 0, MidpointRounding.AwayFromZero);
             window = Hamming(windowSize);
-            windowStep = Math.Round(0.01*file.sampleRate, 0, MidpointRounding.AwayFromZero);
+            windowStep = Math.Round(0.01*this.sampleRate, 0, MidpointRounding.AwayFromZero);
 
             //Liftering:
             filtersCount = 26; //no. of filters in filterbank.
@@ -38,12 +44,12 @@ namespace SpeechRecognition
 
             //Fast Fourier transform:
             fftLength = 2048; //total length of FFT.
-            freqs = getFreqs(fftLength, file.sampleRate); //frequencies in half of FFT.
+            freqs = getFreqs(fftLength, this.sampleRate); //frequencies in half of FFT.
             freqMel = getMelFreqs(freqs) ; //f on mel scale.
-            fs2mel = 2595 * Math.Log10(1 + (file.sampleRate / 2.0) / 700.0); //fs/2 on mel scale.
+            fs2mel = 2595 * Math.Log10(1 + (this.sampleRate / 2.0) / 700.0); //fs/2 on mel scale.
             FBC = getFBC(fs2mel, filtersCount, freqMel);
 
-            MFCCS = getMfccs(file.soundDataLeft, file.soundDataLeft.Length);
+            MFCCS = getMfccs(this.soundData, this.soundData.Length);
         }
 
         private double[][] getMfccs(double[] soundData, int dataSize)

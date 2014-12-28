@@ -14,7 +14,7 @@ namespace SpeechRecognition
             int rows = mfccSample[0].Length;
             int cols = mfccTemplate[0].Length;
 
-            if(mfccSample.Length > 2*mfccTemplate.Length || mfccTemplate.Length > 2*mfccSample.Length)
+            if(mfccSample[0].Length > 2*mfccTemplate[0].Length || mfccTemplate[0].Length > 2*mfccSample[0].Length)
                 throw new ArgumentOutOfRangeException("Too big length difference between both files.");
 
             //Initializations:

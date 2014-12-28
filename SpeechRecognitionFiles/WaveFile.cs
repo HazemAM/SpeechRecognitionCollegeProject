@@ -23,6 +23,9 @@ namespace SpeechRecognition
             this.sampleRate = BitConverter.ToInt32(file, 24);
             this.bitDepth = BitConverter.ToInt16(file, 34);
 
+            if(fmtSize != 16) /*Indicates non-PCM formats. Compressed formats are not supported.*/
+                throw new ArgumentException("Non-PCM files are not currently supported.");
+
             //Get past all the other subchunks to get to the data subchunk:
             int pos = 12; //First subchunk ID from 12 to 16.
 
@@ -49,21 +52,24 @@ namespace SpeechRecognition
             int i = 0;
             while(pos < file.Length)
             {
-                soundDataLeft[i] = bytesToDouble(file[pos], file[pos+1]);
+                soundDataLeft[i] = Utilities.bytesToDouble(file[pos], file[pos+1]);
                 pos += 2;
                 if(channels == 2){
-                    soundDataRight[i] = bytesToDouble(file[pos], file[pos+1]);
+                    soundDataRight[i] = Utilities.bytesToDouble(file[pos], file[pos+1]);
                     pos += 2;
                 }
                 i++;
             }
         }
 
-        private static double bytesToDouble(byte firstByte, byte secondByte)
+        //Alternative constructor:
+        public WaveFile(double[] soundDataLeft, double[] soundDataRight, int sampleRate, int channels)
         {
-            //Convert two bytes to one short (little endian):
-            short value = (short)((secondByte << 8) | firstByte);
-            return value/32768.0; //Convert to range from -1 to (just below) 1.
+            this.soundDataLeft = soundDataLeft;
+            this.soundDataRight = soundDataRight;
+            this.sampleRate = sampleRate;
+            this.channels = channels;
+            this.fmtSize = 16;
         }
     }
 }
